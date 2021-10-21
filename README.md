@@ -1,2 +1,3 @@
 # ctftools
- Tools for CTFs.
+ Tools for CTFs written by me.
+ 
